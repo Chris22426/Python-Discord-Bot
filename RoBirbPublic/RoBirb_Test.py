@@ -21,7 +21,7 @@ import FUNCTIONS
 
 #Important stuff and bot initialisation
 token = "Put your bots token here"
-intents = discord.Intents.default()
+intents = discord.Intents.all()
 intents.members = True
 client = discord.Client(intents=intents)
 @client.event
