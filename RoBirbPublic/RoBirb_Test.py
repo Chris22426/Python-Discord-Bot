@@ -20,7 +20,7 @@ import FUNCTIONS
 #The big mamba jamba himself
 
 #Important stuff and bot initialisation
-token = "ha no"
+token = "Put your bots token here"
 intents = discord.Intents.default()
 intents.members = True
 client = discord.Client(intents=intents)
@@ -31,8 +31,8 @@ async def on_ready():
 
 
 #MongoDB Initialisation
-mongoClient = MongoClient('')
-db = mongoClient.doWhatYouWant
+mongoClient = MongoClient('Put your mongodb connection url here')
+db = mongoClient.ThisIsYourBotsDatabase
 currencyDB = db.currency 
 serverDB = db.servers
 dmDB = db.directMessages 
@@ -152,11 +152,6 @@ async def on_message(message):
                     userSetup(message.author.id)
                 noPumpkins = (invDB.find_one({"userID": message.author.id})[str(pumpkinType)])+1
                 invDB.find_one_and_update({"userID": message.author.id}, {"$set":{str(pumpkinType): noPumpkins}})
-            
-        #Bot healthcheck
-        if content[0] == "rb.hc--command_recog_check" and (message.author == client.user or message.author.id == ownerID):
-            await message.delete()
-            print(f"\nCommand recognition ok\nChecked at {datetime.datetime.now()}\n")
         
         #Makes sure the bot doesn't respond to its own messages
         if message.author == client.user:
@@ -175,85 +170,7 @@ async def on_message(message):
         #dmme command tree
         elif content[0] == prefix+'dmme':
             await message.author.send("hi")
-
-        #echo command tree
-        elif content[0] == prefix+'echo':
-            if message.author.id == ownerID:
-                length = 4 + len(prefix)
-                text = message.content
-                await message.channel.send(text[length:])
-
-        #test command tree
-        elif content[0] == prefix+'test':
-            if message.author.id != ownerID:
-                return
-            elif 'hello' in message.content.lower():
-                await message.channel.send('hello there')
-            elif 'hi' in message.content.lower():
-                await message.channel.send('hi there')
-            elif 'shrubbery' in message.content.lower():
-                await message.channel.send('bush')
-            elif 'test' == content[1]:
-                await message.channel.send('testing')
-            elif (message.content.lower())[5+len(prefix):10+len(prefix)] == 'penis':
-                await message.channel.send('shlong')
-            elif 'arse' == content[1]:
-                embed = discord.Embed(title="hello there",description=str(content[2]))
-                await message.channel.send(embed=embed)
-                print(content[2])
-            elif 'parsing' == content[1]:
-                await message.channel.send(f'penis {content[2]}   titties {content[3]}   arse {content[4]}')
-            else:
-                await message.channel.send((message.content)[(4+len(prefix)):])
-                
-        #owner command tree
-        elif content[0] == prefix+'owner':
-            if message.author.id != ownerID:
-                return
-            elif 'usersetuptest' == content[1]:
-                doc = {"userID": message.author.id, "items": "setupTest"}
-                for i in range(1,110):
-                    doc[str(i)] = 0
-                invDB.insert_one(doc)
-                currencyDB.insert_one({"userID": message.author.id,
-                                       "levelXP": 0,
-                                       "birbSeed": "setupTest",
-                                       "accountID": "",
-                                       "password": ""})
-                count = 0
-                for i in invDB.find({"userID": message.author.id}):
-                    if i["items"] == "setupTest":
-                        count += 1
-                        invDB.find_one_and_delete({"userID": message.author.id, "items": "setupTest"})
-                if count > 0:
-                    await message.channel.send("Inventory setup functional")
-                else: await message.channel.send("Inventory setup disfunctional")
-                count = 0
-                for i in currencyDB.find({"userID": message.author.id}):
-                    if i["birbSeed"] == "setupTest":
-                        count += 1
-                        currencyDB.find_one_and_delete({"userID": message.author.id, "birbSeed": "setupTest"})
-                if count > 0:
-                    await message.channel.send("Currency setup functional")
-                else: await message.channel.send("Currency setup disfunctional")
-            elif 'databasetest' == content[1]:
-                currencyDB.insert_one({"test1": "test2"})
-                if currencyDB.find_one({"test1": "test2"}) != None:
-                    await message.channel.send("Database inserting functional")
-                else: await message.channel.send("Database inserting disfunctional")
-                currencyDB.find_one_and_update({"test1": "test2"},{"$set":{"test1": "test3"}})
-                if currencyDB.find_one({"test1": "test3"}) != None:
-                    await message.channel.send("Database editing functional")
-                else: await message.channel.send("Database editing disfunctional")
-                currencyDB.find_one_and_delete({"test1": "test2"})
-                if currencyDB.find_one({"test1": "test2"}) == None:
-                    await message.channel.send("Database deleting functional")
-                else: await message.channel.send("Database deleting disfunctional")
-            elif 'healthcheck' == content[1]:
-                message1 = await message.channel.send("Working...")
-                embed = discord.embed(title="RoBirb Systems Healthcheck")
-                
-
+            
         #serversetup command tree
         elif content[0] == prefix+'serversetup':
             if message.author.guild_permissions.administrator:
