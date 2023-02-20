@@ -4,37 +4,42 @@ import time
 import datetime
 from bson.objectid import ObjectId
 from pymongo import MongoClient
-import FUNCTIONS
 
-print("Merchant initialised")
-mongoClient = MongoClient('')
-db = mongoClient.doWhatYouWant
-workDB = db.schedRequests
+print("rb.Merchant initialised")
+mongoClient = MongoClient('Your MongoDB URL goes here')
+db = mongoClient.RoBirbBot
 currencyDB = db.currency
+schedDB = db.schedRequests
 
-print("Merchant online")
+print("rb.Merchant online")
 while True:
-    wait = random.randint(15,60)*60
-    workDB.insert_one({"userID": "Merchant",
+    wait = random.randint(15,60)
+    schedDB.insert_one({"userID": "rb.Merchant",
                         "action": "merchantSpawn",
-                        "timeLeft": wait,
-                        "bot": "Merchant"})
-    time.sleep(wait)
-    if workDB.find_one({"userID": "Merchant"}) != None:
-        workDB.find_one_and_delete({"userID": "Merchant"})
+                        "timeLeft": wait*60,
+                        "bot": "rb.Merchant"})
+    time.sleep(wait*60)
+    if schedDB.find_one({"userID": "rb.Merchant"}) != None:
+        schedDB.find_one_and_delete({"userID": "rb.Merchant"})
+    if currencyDB.find_one({"userID": "merchant.sell"}) != None or currencyDB.find_one({"userID": "merchant.buy"}) != None:
+        currencyDB.find_one_and_delete({"userID": "merchant.buy"})
+        currencyDB.find_one_and_delete({"userID": "merchant.sell"})
         
-    test = {"userID": "Merchant"}
-    for i in range(1,24):
+    buy = {"userID": "merchant.buy"}
+    sell = {"userID": "merchant.sell"}
+    for i in range(1,23):
         num = random.randint(1,8)
-        test[str(i)] = num
+        buy[str(i)] = num
     
-    for i in range(24,47):
+    for i in range(1, 23):
         num = random.uniform((random.randint(1,8)/10),1)
-        test[str(i)] = num
+        sell[str(i)] = num
         
-    currencyDB.insert_one(test)
-    print("Merchant spawned at   "+str(datetime.datetime.now()))
+    currencyDB.insert_one(buy)
+    currencyDB.insert_one(sell)
+    print(f"Merchant spawned   | {datetime.datetime.now()}")
     
-    time.sleep(random.randint(3,10)*60)
-    print("Merchant despawned at "+str(datetime.datetime.now()))
-    currencyDB.find_one_and_delete({"userID": "Merchant"})   
+    time.sleep(random.randint(10,20)*60)
+    print(f"Merchant despawned | {datetime.datetime.now()}")
+    currencyDB.find_one_and_delete({"userID": "merchant.buy"})
+    currencyDB.find_one_and_delete({"userID": "merchant.sell"})  
