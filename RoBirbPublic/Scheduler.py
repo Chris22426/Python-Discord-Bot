@@ -3,27 +3,25 @@ from bson.objectid import ObjectId
 import pymongo
 from pymongo import MongoClient
 
-mongoClient = MongoClient('')
-db = mongoClient.doWhateverYouWant
-workDB = db.schedRequests
-#num = 0
+mongoClient = MongoClient('Your MongoDB URL goes here')
+db = mongoClient.YourDatabaseName
+schedDB = db.schedRequests
 
-print("Scheduler Online")
+print("Local Scheduler Online")
 while True:
-    if workDB.find({}, {"userID":0,"channel":0,"guild":0,"action":0, "timeLeft":0, "bot":0}) == None or workDB.find({}, {"userID":0,"channel":0,"guild":0,"action":0, "timeLeft":0, "bot":0}) == 0:
-        print('None')
-    else:
-        for x in workDB.find({}, {"userID":0,"channel":0,"guild":0,"action":0, "timeLeft":0, "bot":0}):
-            ID = str(x)[18:42]
-            if workDB.find_one({"_id": ObjectId(str(ID))}) != None:
-                timeLeft = workDB.find_one({"_id": ObjectId(str(ID))})["timeLeft"]
-                print(timeLeft)
-                if timeLeft <= 0:
-                    workDB.find_one_and_delete({"_id": ObjectId(str(ID))})
-                else:
-                    timeLeft = timeLeft - 1
-                    workDB.find_one_and_update({"_id": ObjectId(str(ID))}, {"$set":{"timeLeft": timeLeft}})
+    if schedDB.find({}) != None:
+        for x in schedDB.find():
+            ID = x["_id"]
+            if schedDB.find_one({"_id": ObjectId(str(ID))}) != None:
+                timeLeft = schedDB.find_one({"_id": ObjectId(str(ID))})["timeLeft"]
+                timeLeft = timeLeft - 1
+                schedDB.find_one_and_update({"_id": ObjectId(str(ID))}, {"$set":{"timeLeft": timeLeft}})
 
-    #num += 1
     time.sleep(1)
     
+    
+    
+# This is in no way, shape or form the best way to do this. I know this for a fact and have implimented a new way of doing this on the new Discord bot.
+# This new system uses unix time codes instead of a counter, so this file is completely unnecessary.
+# This system drifts roughly 13 minuets out over the course of a day. The new system has no drift at all. This file also crashes seemingly randomly, which is bad.
+# Eventually, I will port this new system over to this bot. But, as of right now, I am focusing on getting the new bot up to scratch with this one.
