@@ -15,9 +15,6 @@ import pymongo
 import asyncio
 from pymongo import MongoClient
 from bson.objectid import ObjectId
-import FUNCTIONS
-
-#The big mamba jamba himself
 
 #Important stuff and bot initialisation
 token = "Put your bots token here"
@@ -33,21 +30,22 @@ async def on_ready():
 #MongoDB Initialisation
 mongoClient = MongoClient('Put your mongodb connection url here')
 db = mongoClient.ThisIsYourBotsDatabase
-currencyDB = db.currency 
+ccurrencyDB = db.currency 
 serverDB = db.servers
 dmDB = db.directMessages 
-workDB = db.schedRequests
+schedDB = db.schedRequests
 invDB = db.inventory
 christmasDB = db.christmasy
 gambleDB = db.gambling
+petDB = db.pets
+colourDB = db.colour
+warnDB = db.warnings
 
 
 #Setup
-ownerID = 1273
-prefix = '$'
-currency = 'money'
-botName = 'whatever you want it to be'
-christmas = False
+ownerID = 1273                                  # Your Discord userID  (https://support.discord.com/hc/en-us/articles/206346498-Where-can-I-find-my-User-Server-Message-ID-)
+prefix = '$'                                    # The prefix you wish for your bot to answer to
+currency = 'money'                              # The currency name you wish for your bot to have
 
 
 #All bot command trees
@@ -418,7 +416,7 @@ async def on_message(message):
             def helpText():
                 embed = discord.Embed(title="__**Bank Help**__", description="Do `"+prefix+"bank {action (balance, for example)}` to do that actiion!", colour=0x32CD32)
                 embed.add_field(name="Balance (bal)", value=f"Check how much {currency} you (or someone else) have! Can also be done using `{prefix}bal`")
-                embed.add_field(name="Transfer", value=f"Give some cash money moolah to a friend(or not) of yours! Just ping the person after the command")
+                embed.add_field(name="Transfer", value=f"Give some cash money to a friend(or not) of yours! Just ping the person after the command")
                 embed.set_footer(text=f"Do `{prefix}help currency` to find out more about the currency system")
                 return embed
             if currencyDB.find_one({"userID": message.author.id}) == None:
@@ -1024,15 +1022,10 @@ async def on_message(message):
                     await message.channel.send("Please input a valid item number")
                 elif '1' == content[2]:
                     embed = discord.Embed(title = "__Lolipop__", description = "A cheap and very pleasant food. Costs 50 "+currency, colour = 0xFFA500)
-                    #embed.set_image(url='https://i.imgur.com/qMdwyYJ.png')
-                    #embed.add_field(name='More Info',value='Heals 5 health. Grants the user a "sugar-rush" which increases their attack speed for 1 move',inline=True)
-                    #embed.set_footer(text='No copyright infringement intended with the image')
                     await message.channel.send(embed=embed)
                 elif '2' == content[2]:
                     embed = discord.Embed(title = "__Stick__", description = "You could always just pick up some random stick off the floor, but this is a PREMIUM stick, made out of the *finest* quality wood! It is guaranteed to give you MAXIMUM STICK POWER! Costs 100 "+currency, colour=0xFFA500)
                     embed.add_field(name='More Info', value="A literal stick. It seems like it could be pretty useful for whacking people. A small part of you feels like the end of this stick would be a good home for a jalapeno.")
-                    #embed.set_image(url='https://i.imgur.com/6XeKbdg.jpg')
-                    #embed.set_footer(text='No copyright infringement intended with the image')
                     await message.channel.send(embed=embed)
                 elif '3' == content[2]:
                     embed = discord.Embed(title = "__Cane__", description = "A piece of wood with a handle on top. Could be used to make walking easier. Could also be used to hit somebody. Costs 250 "+currency, colour = 0xFFA500)
@@ -1192,15 +1185,14 @@ async def on_message(message):
                 await message.channel.send(f"Please wait before using this command again")
                 return
             def baseHelp():
-                embed = discord.Embed(title = "__**Welcome to RoBirb!**__", description = f"What do I do? Well, what do I not do? | My prefix in this server is {prefix}", colour=0x32CD32)
+                embed = discord.Embed(title = "__**Welcome to this Discord Bot!**__", description = f"What do I do? Well, what do I not do? | My prefix in this server is {prefix}", colour=0x32CD32)
                 embed.add_field(name='__Moderation Features__', value=prefix+'help moderation', inline=True)
                 embed.add_field(name='__Currency Features__', value=prefix+'help currency', inline=True)
                 embed.add_field(name='__Gambling Features__', value=prefix+"help gambling", inline=True)
                 embed.add_field(name='__Fun Features__', value=prefix+"help fun", inline=True)
                 embed.add_field(name='__Random Features__', value=prefix+"help random", inline=True)
-                embed.add_field(name='__Future Features__', value=prefix+"help future", inline=True)
                 embed.add_field(name='__Festive Features__', value=prefix+"help christmas", inline=True)
-                embed.set_footer(text='A website is currently being worked on for this. It will have an interactive help system ')
+                embed.set_footer(text='')
                 return embed
             if len(content) == 1:
                 await message.channel.send(embed=baseHelp())
@@ -1229,8 +1221,10 @@ async def on_message(message):
                     embed.add_field(name=f"{prefix}removewarn (deletewarn)", value=f"Removes either a specified warning, or all warrnings for a pinged user", inline = False)
                     embed.add_field(name=f"{prefix}lockdown", value=f"Prevents @everyone (or the verification role, if set) from sending messages in the channel the message was sent in", inline = False)
                     embed.add_field(name=f"{prefix}unlockdown", value=f"Allows @everyone (or the verification role, if set) to send messages in the channel the message was sent in", inline = False)
+                    embed.add_field(name=f"{prefix}slowmode", value=f"Sets the slowmode of a channel", inline = False)
+                    embed.add_field(name=f"{prefix}nick", value=f"Sets the nickname of you or a provided user", inline = False)
                 else: baseMod()
-                embed.set_footer(text="Think we should add more? DM the bot (we probably wont check) or use the $botsuggest command. Most of these commands have respective \"help\" subcommands")
+                embed.set_footer(text="Think we should add more? DM the bot (we probably wont check). Most of these commands have respective \"help\" subcommands")
                 await message.channel.send(embed=embed)
             elif content[1] == 'currency':
                 embed=discord.Embed(title = "__**Currency Commands**__", description=f"This is a list of all the currency commands that give and take away your {currency}", colour=0x32CD32)
@@ -1242,7 +1236,7 @@ async def on_message(message):
                 embed.add_field(name=f"{prefix}merchant (m)", value=f"Some old guy, who we don't know, wanders through here every now and then. He buys and sells things for some good, and sometimes bad, amounts of{currency}", inline= False)
                 embed.add_field(name=f"{prefix}rob (bankrob)", value=f"Can rob your ~~fri~~enemys. But be careful, there are repercussions if you get caught", inline= False)
                 embed.add_field(name=f"{prefix}inventory (inv)", value=f"See your inventory, and what items you've bought with your {currency}", inline= False)
-                embed.set_footer(text="Think we should add more? DM the bot (we probably wont check) or use the $botsuggest command. Most of these commands have respective \"help\" subcommands")
+                embed.set_footer(text="Think we should add more? DM the bot (we probably wont check). Most of these commands have respective \"help\" subcommands")
                 await message.channel.send(embed=embed)
             elif content[1] == 'gambling':
                 embed=discord.Embed(title = "__**Gambling Commands**__", description=f"This is a list of all the gambling commands that make you loose all your easy earned {currency}", colour=0x32CD32)
@@ -1251,7 +1245,7 @@ async def on_message(message):
                 embed.add_field(name=f"{prefix}roulette", value=f"This was a pain. It is just \"basic\" roulette. Do `{prefix}roulette help` to find out more. *There is a lot. Be warned.*", inline= False)
                 embed.add_field(name=f"{prefix}blackjack", value="This is disfunctional right now. I'll probably get around to it later", inline= False)
                 embed.add_field(name=f"{prefix}slotmachine (sm)", value="This is disfunctional right now. I'll probably get around to it later", inline= False)
-                embed.set_footer(text="Think we should add more? DM the bot (we probably wont check) or use the $botsuggest command. All of these commands have respective \"help\" subcommands")
+                embed.set_footer(text="Think we should add more? DM the bot (we probably wont check). All of these commands have respective \"help\" subcommands")
                 await message.channel.send(embed=embed)
             elif content[1] == 'fun':
                 embed=discord.Embed(title = "__**Fun Commands**__", description="This is a list of all the fun commands, that don't really serve much purpose", colour=0x32CD32)
@@ -1261,9 +1255,9 @@ async def on_message(message):
                 embed.add_field(name=f"{prefix}punch", value="Ping the person you want to punch after the command. Or not, up to you", inline= False)
                 embed.add_field(name=f"{prefix}kiss", value="Ping the person you want to kiss after the command. Or not, up to you", inline= False)
                 embed.add_field(name=f"{prefix}slap", value="Ping the person you want to slap after the command. Or not, up to you", inline= False)
-                embed.add_field(name=f"{prefix}bslap", value="Ping the person you want to birch slap *~~family friendly~~* after the command. Or not, up to you", inline= False)
                 embed.add_field(name=f"{prefix}cuddle", value="Ping the person you want to cuddle after the command. Or not, up to you", inline= False)
-                embed.set_footer(text="Think we should add more? DM the bot (we probably wont check) or use the $botsuggest command")
+                embed.add_field(name=f"{prefix}pet", value=f"The pet system. There isn't enough room here to explain, so do `{prefix}pet help` instead", inline= False)
+                embed.set_footer(text="Think we should add more? DM the bot (we probably wont check)")
                 await message.channel.send(embed=embed)
             elif content[1] == 'random':
                 embed=discord.Embed(title = "__**Random Commands**__", description=f"This is a list of all the random commands that serves many, or no, purpose", colour=0x32CD32)
@@ -1275,19 +1269,9 @@ async def on_message(message):
                 embed.add_field(name=f"{prefix}hello", value=f"Hello!", inline= False)
                 embed.add_field(name=f"{prefix}help", value=f"You need to read this?", inline= False)
                 embed.add_field(name=f"{prefix}dmme", value=f"Hello! *But this time it's personal*", inline= False)
-                embed.set_footer(text="Think we should add more? DM the bot (we probably wont check) or use the $botsuggest command. Some of these commands have respective \"help\" subcommands")
+                embed.add_field(name=f"{prefix}colour", value=f"The colour system. Do `{prefix}colour help`, It's easier", inline= False)
+                embed.set_footer(text="Think we should add more? DM the bot (we probably wont check). Some of these commands have respective \"help\" subcommands")
                 await message.channel.send(embed=embed)
-            elif content[1] == 'future':
-                embed=discord.Embed(title = "__**Future Commands**__", description=f"This is a list of all the Future commands which are currently being worked on", colour=0x32CD32)
-                embed.add_field(name=f"Pet system", value=f"The current pet system, but more beefy. Aka, a battle system, strengh, health, and other cool things", inline= False)
-                embed.add_field(name=f"A website", value=f"I know it isn't a command, but it's still cool", inline= False)
-                embed.add_field(name=f"More gambling commands", value="Gimme your {currency}", inline= False)
-                embed.add_field(name=f"More moderation commands", value=f"Fend off the bad, but better!", inline= False)
-                embed.add_field(name=f"Gathering and crafting system", value=f"The big kahoona. The big mamba jamba. Why the hell did I decide to take on such a large project. More details will be released at a later date", inline= False)
-                embed.add_field(name=f"XP and level system", value=f"You know it from every other bot out there. The only difference being that I don't know how to impliment it and, I'm assuming, they do", inline= False)
-                embed.set_footer(text="Think we should add more? (please don't) DM the bot (we probably wont check) or use the $botsuggest command. Some of these commands have respective \"help\" subcommands")
-            elif content[1] == 'help':
-                await message.channel.send("`* Clever. Verrrryyy clever.` \n`* You think you're really smart, don't you?` \n`* You did a command which you thought wouldn't get a response. Which you thought I hadn't have thought about` \n`* But no. I've thought of it. I've thought of everything. There is nothing you can do which won't muster a response from me`")
             elif content[1] == 'me':
                 await message.channel.send("I can do many things, but this is not one of them")
             elif content[1] == 'verification':
@@ -1365,27 +1349,6 @@ async def on_message(message):
                 else:
                     await message.channel.send("Please send a valid subcommand. (`enable`, `disable`)")
                     
-        #botsuggest command tree
-        elif content[0] == prefix+'botsuggest':
-            if schedDB.find_one({"userID": message.author.id, "action": "botSuggestCD"}) != None:
-                await message.channel.send(f"Please wait before using this command again")
-                return
-            if schedDB.find_one({"userID": message.author.id, "action": "botSuggest"}) != None:
-                await message.channel.send("You can only suggest one thing every 3 hours")
-            elif len(content) == 1:
-                await message.channel.send("You can't suggest nothing. We're already doing that")
-            else:
-                embed = discord.Embed(tile="__New Suggestion__", description=message.content[len(prefix)+10:], colour=0xFF00FF)
-                embed.set_author(name=message.author,  icon_url=message.author.avatar_url)
-                embed.set_footer(text="Guild Name: "+message.guild.name)
-                guild = client.get_guild(id=birbNestID)
-                message2 = await guild.get_channel(botSuggestChannel).send(embed=embed)
-                await message.channel.send("Your suggestion has been recorded. Thanks!")
-                await message2.add_reaction("👍")
-                await message2.add_reaction("👎")
-                schedDB.insert_one({"timeLeft": 10800, "action": "botSuggest", "userID": message.author.id})
-            schedDB.insert_one({"userID": message.author.id,"timeLeft": 2, "action":"botSuggestCD"})    
-            
         #kill command tree
         elif content[0] == prefix+'kill':
             if len(content) == 1:
@@ -1401,10 +1364,6 @@ async def on_message(message):
                 await message.channel.send(f'<@{message.author.id}> brings down an absolute masacare onto the air molecules!')
             elif len(message.mentions) == 0:
                 await message.channel.send(f'<@{message.author.id}> brings down an absolute masacare onto the air molecules!')
-            elif message.mentions[0].id == ownerID and message.author.id == ownerID:
-                await message.channel.send("My owner is trying to slaughter himself? \nGuess I'm going back to updaten't!")
-            elif message.mentions[0].id == ownerID and message.author.id != ownerID:
-                await message.channel.send(f'<@{message.author.id}> tries to slaughter <@'+str(ownerID)+'> but, with him being my developer, it is in my best interest to keep him alive. \n-slaughters <@{message.author.id}> btw- :)')
             else:
                 await message.channel.send(f'<@{message.author.id}> brings down an absolute masacare onto <@{message.mentions[0].id}>')
                 
@@ -1444,15 +1403,6 @@ async def on_message(message):
             else:
                 await message.channel.send(f"<@{message.author.id}> slaps <@{message.mentions[0].id}>!\nOuch!")
         
-        #bitch slap command tree
-        elif content[0] in [prefix+'bslap', prefix+'bitchslap', prefix+'birtchslap']:
-            if len(content) == 1:
-                await message.channel.send(f"-birtch slaps <@{message.author.id}>-\nThat'll leave a mark!")
-            elif len(message.mentions) == 0:
-                await message.channel.send(f"-slaps <@{message.author.id}>-")
-            else:
-                await message.channel.send(f"<@{message.author.id}> birtch slaps <@{message.mentions[0].id}>!\nThat must've stung!")
-        
         #cuddle command tree
         elif content[0] == prefix+'cuddle':
             if len(content) == 1:
@@ -1460,7 +1410,7 @@ async def on_message(message):
             elif len(message.mentions) == 0:
                 await message.channel.send('I\'ll take a pass on this one')
             else:
-                await message.channel.send('<@'+str(message.author.id)+'> gives <@'+str(message.mentions[0].id)+'> a big hug!')
+                await message.channel.send('<@'+str(message.author.id)+'> gives <@'+str(message.mentions[0].id)+'> a big cuddle!')
                 
         #rps command tree
         elif content[0] in [prefix+'rps', prefix+'rockpaperscissors']:
@@ -1470,9 +1420,9 @@ async def on_message(message):
             if currencyDB.find_one({"userID": message.author.id}) == None:
                 userSetup(message.author.id)
             if message.content[len(prefix)+3:] == '':
-                await message.channel.send("__Rock Paper Scissors__ \nIt's literally just rock paper scissors. Rock beats scissors, paper beats rock and scissors beats paper. \nIf you win the game, you get some amount of currency back \nUsage: `"+prefix+"rps {'r'. 'p' or 's'} {ammount}`")
+                await message.channel.send("__Rock Paper Scissors__ \nIt's literally just rock paper scissors. Rock beats scissors, paper beats rock and scissors beats paper. \nIf you win the game, you get some amount of currency back \nUsage: `"+prefix+"rps {'r', 'p' or 's'} {ammount}`")
             elif content[1] == 'help':
-                await message.channel.send("__Rock Paper Scissors__ \nIt's literally just rock paper scissors. Rock beats scissors, paper beats rock and scissors beats paper. \nIf you win the game, you get some amount of currency back \nUsage: `"+prefix+"rps {'r'. 'p' or 's'} {ammount}`")
+                await message.channel.send("__Rock Paper Scissors__ \nIt's literally just rock paper scissors. Rock beats scissors, paper beats rock and scissors beats paper. \nIf you win the game, you get some amount of currency back \nUsage: `"+prefix+"rps {'r', 'p' or 's'} {ammount}`")
             elif content[2] == '' or content[2].isdecimal() == False:
                 await message.channel.send("Please provide an ammount to gamble with")
             elif int(content[2]) > currencyDB.find_one({"userID": message.author.id})["birbSeed"]:
@@ -1490,9 +1440,6 @@ async def on_message(message):
                 elif number == 3:
                     rps = 3
                 else:
-                    #Should hopefully never need to be called, but just in case.
-                    await message.channel.send("I'm sorry, but something has gone very wrong. \nThe dev has been notified")
-                    print ('Fatal error in guild: '+str(message.guild.id)+'\nBot: '+botName+' ('+str(client.user)+'\nrps command tree')
                     return
                 if content[1] == 'r':
                     rps2 = 1
@@ -1550,9 +1497,7 @@ async def on_message(message):
                         newBal = prevBal-int(content[2])
                         currencyDB.find_one_and_update({"userID": message.author.id}, {"$set":{"birbSeed": newBal}})
                 else:
-                    #Again, should hopefully never be called, but just in case
-                    await message.channel.send("I'm sorry, but something has gone very wrong. \nThe dev has been notified")
-                    print ('Fatal error in guild: '+str(message.guild.id)+'\nBot: '+botName+' ('+str(client.user)+'\nrps command tree 2')
+                    return
             schedDB.insert_one({"userID": message.author.id,"timeLeft": 2, "action":"rpsCD"})
         
         #roulette command tree
@@ -2533,56 +2478,29 @@ async def on_message(message):
                 return
             if currencyDB.find_one({"userID": message.author.id}) == None:
                 userSetup(message.author.id)
-            #if schedDB.find_one({"userID": "rb.Merchant"}) <= None:
-            #    timeLeft = schedDB.find_one({"userID": "rb.Merchant"})["timeLeft"]
-            #    seconds = timeLeft % (24 * 3600)
-            #    hour = seconds // 3600
-            #    seconds = seconds % 3600
-            #    minutes = seconds // 60
-            #    seconds = seconds % 60
-            #    await message.channel.send("There is no merchant right now. Try looking again in "+str(hour)+':'+str(minutes)+':'+str(seconds))
+            if schedDB.find_one({"userID": "rb.Merchant"}) <= None:
+                timeLeft = schedDB.find_one({"userID": "rb.Merchant"})["timeLeft"]
+                seconds = timeLeft % (24 * 3600)
+                hour = seconds // 3600
+                seconds = seconds % 3600
+                minutes = seconds // 60
+                seconds = seconds % 60
+                await message.channel.send("There is no merchant right now. Try looking again in "+str(hour)+':'+str(minutes)+':'+str(seconds))
             else:
-                if True == False:
-                    await message.channel.send("This will never be called. I'm being serious. If, by some miricle, you see this message (on Discord, in the code doesnt count), I will give you £20 - Chris\n(Editing the code then doing it through RoBirb2 doesn't count. Needs to be through RoBirb1)") 
-                    #I don't have the patience to drop the entire merchant system down by 4 spaces. May as well put an inaccessable easter egg
-                else:
-                    #THE NUMBER: values 1 through 23 are for buying, numbers 24 through 46 are for selling
-                    #Any given number can be from 1 to 8. If the value is 3,4,5 or 6, the item will not show up (buying)
-                    #If no items are shown, then pick a random number between 1 and 23 and show the corrisponding item
-                    #If the value is 1 or 2, make the item cheaper than the shop (1 cheaper than 2)
-                    #if the value is 7 or 8, make the item more expensive than the shop (7 cheaper than 8)
-                    #With selling, for each value, pick a random number between (num/10) and 1.  (item selling cost = half the item cost)
-                    #If the original number is between 1 and 4, divide the item selling cost by the random number
-                    #If the original number is betweem 5 and 8, multiply the item selling cost by the random number
-                    #This is going to take fucking forever      Sidenote: it did not, in fact, take fucking forever
-                    if len(content) <= 1:
-                        await message.channel.send("\"What can I do for ya, kid?\"\n(`"+prefix+"m buy`,`"+prefix+"m sell`)")
-                    elif content[1] == 'buy':
-                        if len(content) <= 2:
-                            await message.channel.send("\"What'll it be?\"\n(inventory, item)")
-                        elif content[2] == 'inventory' or content[2] == 'inv':
-                            num2 = 0
-                            embed = discord.Embed(title = "__Merchants Shop__", description="Do `"+prefix+"shop item {number}` to find out about the item", colour = 0x8F00FF)
-                            for i in range(1,12):
-                                num = currencyDB.find_one({"userID": "merchant.buy"})[str(i)]
-                                if num == 3 or num == 4 or num == 5 or num == 6:
-                                    num2 += 1
-                                    continue
-                                else:
-                                    price = float(invDB.find_one({"list":"price"})[str(i)])
-                                    if num == 1:
-                                        price = int(price*0.75)
-                                    elif num == 2:
-                                        price = int(price*0.85)
-                                    elif num == 7:
-                                        price = int(price*1.15)
-                                    elif num == 8:
-                                        price = int(price*1.25)
-                                    embed.add_field(name=str(i)+': '+invDB.find_one({"list":"name"})[str(i)], value= str(price))
-                            if num2 == 12:
-                                num3 = random.randint(1,12)
-                                num = currencyDB.find_one({"userID":"merchant.buy"})[str(num3)]
-                                price = float(invDB.find_one({"list": "price"})[str(num3)])
+                if len(content) <= 1:
+                    await message.channel.send("\"What can I do for ya, kid?\"\n(`"+prefix+"m buy`,`"+prefix+"m sell`)")
+                elif content[1] == 'buy':
+                    if len(content) <= 2:
+                        await message.channel.send("\"What'll it be?\"\n(inventory, item)")
+                    elif content[2] == 'inventory' or content[2] == 'inv':
+                        num2 = 0
+                        embed = discord.Embed(title = "__Merchants Shop__", description="Do `"+prefix+"shop item {number}` to find out about the item", colour = 0x8F00FF)
+                        for i in range(1,12):
+                            num = currencyDB.find_one({"userID": "merchant.buy"})[str(i)]
+                            if num == 3 or num == 4 or num == 5 or num == 6:
+                                num2 += 1
+                            else:
+                                price = float(invDB.find_one({"list":"price"})[str(i)])
                                 if num == 1:
                                     price = int(price*0.75)
                                 elif num == 2:
@@ -2591,115 +2509,124 @@ async def on_message(message):
                                     price = int(price*1.15)
                                 elif num == 8:
                                     price = int(price*1.25)
-                                    embed.add_field(name=str(num3)+': '+invDB.find_one({"list":"name"}[str(num3)], value=str(price)))
-                            embed.set_footer(text="Page 1")
-                            await message.channel.send(embed=embed)
-                        elif content[2] == 'item':
-                            if len(content) <= 3:
-                                await message.channel.send("\"I ain't selling air, kid!\"\n(Please provide a valid item number)")
-                                schedDB.insert_one({"userID": message.author.id,"timeLeft": 2, "action":"merchantCD"})
-                                return
-                            for a in range(1,12):
-                                num = currencyDB.find_one({"userID":"merchant.buy"})[str(a)]
-                                if str(a) == content[3]:
-                                    if num == 3 or num == 4 or num == 5 or num == 6:
-                                        await message.channel.send("\"I ain't selling that, kid!\"")
-                                        continue
-                                    if len(content) <= 4:
-                                        c = 1
-                                    elif content[4].isdecimal == True:
-                                        c = int(content[4])
+                                embed.add_field(name=str(i)+': '+invDB.find_one({"list":"name"})[str(i)], value= str(price))
+                        if num2 == 12:
+                            num3 = random.randint(1,12)
+                            num = currencyDB.find_one({"userID":"merchant.buy"})[str(num3)]
+                            price = float(invDB.find_one({"list": "price"})[str(num3)])
+                            if num == 1:
+                                price = int(price*0.75)
+                            elif num == 2:
+                                price = int(price*0.85)
+                            elif num == 7:
+                                price = int(price*1.15)
+                            elif num == 8:
+                                price = int(price*1.25)
+                                embed.add_field(name=str(num3)+': '+invDB.find_one({"list":"name"}[str(num3)], value=str(price)))
+                        embed.set_footer(text="Page 1")
+                        await message.channel.send(embed=embed)
+                    elif content[2] == 'item':
+                        if len(content) <= 3:
+                            await message.channel.send("\"I ain't selling air, kid!\"\n(Please provide a valid item number)")
+                            schedDB.insert_one({"userID": message.author.id,"timeLeft": 2, "action":"merchantCD"})
+                            return
+                        for a in range(1,12):
+                            num = currencyDB.find_one({"userID":"merchant.buy"})[str(a)]
+                            if str(a) == content[3]:
+                                if num == 3 or num == 4 or num == 5 or num == 6:
+                                    await message.channel.send("\"I ain't selling that, kid!\"")
+                                if len(content) <= 4:
+                                    c = 1
+                                elif content[4].isdecimal == True:
+                                    c = int(content[4])
+                                else:
+                                    c = int(content[4])
+                                if str(a) == "6":
+                                    i = 5
+                                    b = (3*c)
+                                else:
+                                    i = a
+                                    b = c
+                                bankBal = currencyDB.find_one({"userID": message.author.id})["birbSeed"]
+                                price = float(invDB.find_one({"list":"price"})[str(i)])
+                                if num == 1:
+                                    price = int(price*0.75)
+                                elif num == 2:
+                                    price = int(price*0.85)
+                                elif num == 7:
+                                    price = int(price*1.15)
+                                elif num == 8:
+                                    price = int(price*1.25)
+                                if int(bankBal) < int(int(price)*c):
+                                    await message.channel.send("\"You haven't got enough dough!\"")
+                                else:
+                                    newBal = int(bankBal) - int(int(price)*c)
+                                    if invDB.find_one({"userID": message.author.id}) == None:
+                                        invDB.insert_one({"userID": message.author.id, "items": 0})
+                                        for a in range(1,24):
+                                            invDB.find_one_and_update({"userID": message.author.id}, {"$set":{str(a): 0}})
+                                    items = invDB.find_one({"userID": message.author.id})["items"]
+                                    if invDB.find_one({"userID": message.author.id})[str(i)] == None:
+                                        invDB.find_one_and_update({"userID": message.author.id}, {"$set":{str(i): b}})
+                                        invDB.find_one_and_update({"userID": message.author.id}, {"$set":{"items": items+b}})
                                     else:
-                                        c = int(content[4])
-                                    if str(a) == "6":
-                                        i = 5
-                                        b = (3*c)
-                                    else:
-                                        i = a
-                                        b = c
-                                    bankBal = currencyDB.find_one({"userID": message.author.id})["birbSeed"]
-                                    price = float(invDB.find_one({"list":"price"})[str(i)])
-                                    if num == 1:
-                                        price = int(price*0.75)
-                                    elif num == 2:
-                                        price = int(price*0.85)
-                                    elif num == 7:
-                                        price = int(price*1.15)
-                                    elif num == 8:
-                                        price = int(price*1.25)
-                                    if int(bankBal) < int(int(price)*c):
-                                        await message.channel.send("\"You haven't got enough dough!\"")
-                                    else:
-                                        newBal = int(bankBal) - int(int(price)*c)
-                                        if invDB.find_one({"userID": message.author.id}) == None:
-                                            invDB.insert_one({"userID": message.author.id, "items": 0})
-                                            for a in range(1,24):
-                                                invDB.find_one_and_update({"userID": message.author.id}, {"$set":{str(a): 0}})
-                                        items = invDB.find_one({"userID": message.author.id})["items"]
-                                        if invDB.find_one({"userID": message.author.id})[str(i)] == None:
-                                            invDB.find_one_and_update({"userID": message.author.id}, {"$set":{str(i): b}})
-                                            invDB.find_one_and_update({"userID": message.author.id}, {"$set":{"items": items+b}})
-                                        else:
-                                            num = invDB.find_one({"userID": message.author.id})[str(i)]
-                                            invDB.find_one_and_update({"userID": message.author.id}, {"$set":{str(i): (num+b)}})
-                                            invDB.find_one_and_update({"userID": message.author.id}, {"$set":{"items": items+b}})
-                                        currencyDB.find_one_and_update({"userID": message.author.id}, {"$set":{"birbSeed": newBal}})
-                                        name = invDB.find_one({"list": "name"})[str(a)]
-                                        await message.channel.send(f"\"Pleasure doin' buisiness with you, kid!\"\n(You just bought {c} {name.lower()}! You now have {newBal} {currency})")
-                        else:
-                            await message.channel.send("\"What'll it be?\"\n(inventory, item)")
-                    elif content[1] == 'sell':
-                        if len(content) <= 2:
-                            await message.channel.send("\"What'll it be?\"\n(inventory, item)")
-                        elif content[2] == 'inventory' or content[2] == 'inv':
-                            embed = discord.Embed(title = "__Merchants Request List__", description="Basically, this is what he wants to buy, and how much he'll pay per item", colour = 0x39FF14)
-                            for i in range(1,12):
-                                num = currencyDB.find_one({"userID": "merchant.buy"})[str(i)]
-                                num2 = currencyDB.find_one({"userID": "merchant.sell"})[str(i)]
-                                price = (int(invDB.find_one({"list":"price"})[str(i)])/2)
-                                if num <= 4:
-                                    price = price/num2
-                                else: price = price*num2
-                                embed.add_field(name=str(i)+': '+invDB.find_one({"list":"name"})[str(i)], value=str(int(price)))
-                            embed.set_footer(text="Page 1")
-                            await message.channel.send(embed=embed)
-                        elif content[2] == 'item':
-                            if len(content) <= 3:
-                                await message.channel.send("\"I ain't buying air, kid!\"\n(Please provide a valid item number)")
-                            else:
-                                for i in range(1,24):
-                                    if content[3] == str(i):
-                                        if invDB.find_one({"userID": message.author.id})[str(i)] == 0:
-                                            await message.channel.send("\"You don't have any of that, kid!\"")
-                                        else:
-                                            #await message.channel.send(message.content[(len(prefix)+len(str(content[2]))+10):])
-                                            if len(content) <= 4:
-                                                num = 1
-                                            elif content[4].isdecimal() == True:
-                                                num = int(content[4])
-                                            else: num = 1
-                                            amount = invDB.find_one({"userID": message.author.id})[str(content[3])]
-                                            if amount < num:
-                                                await message.channel.send("\"You don't have enough of 'em, kid!\"")
-                                            else:
-                                                num2 = currencyDB.find_one({"userID":"merchant.buy"})[str(i)]
-                                                num3 = currencyDB.find_one({"userID": "merchant.sell"})[str(i)]
-                                                price = (int(invDB.find_one({"list": "price"})[str(content[3])])/2)
-                                                if num2 <= 4:
-                                                    price = int(price/num3)
-                                                else: price = int(price*num3)
-                                                price = price*num
-                                                invDB.find_one_and_update({"userID": message.author.id},{"$set":{str(content[3]):(amount-num)}})
-                                                prevBal = currencyDB.find_one({"userID": message.author.id})["birbSeed"]
-                                                currencyDB.find_one_and_update({"userID": message.author.id},{"$set":{"birbSeed": (prevBal+price)}})
-                                                name = invDB.find_one({"list": "name"})[str(content[3])]
-                                                await message.channel.send(f"\"Pleasure doin' buisiness with you, kid!\"\n(You just sold {num} {name}! You have earned {price} {currency})")
-                        else:
-                            await message.channel.send("\"What'll it be?\"\n(inventory, item)")
-                    elif content[1] == 'talk':
-                        await message.channel.send("\"Well, it seems we have an easter egg hunter on our hands!\"\n\"You're lucky I'm in a good mood.\"\n\"There isn't really a whole lot to say about myself. I don't know how I got here, or where I go when I leave. I just... appear here every once in a while, just waiting for someone like you.\"\n\"It's a strange feeling, phasing in and out of existance. Sometimes I wish I didn't need to return. But, alas, I have not a single bit of choice.\"\n\"But hey, it's not all bad. Pays good! Heheheh\"")
+                                        num = invDB.find_one({"userID": message.author.id})[str(i)]
+                                        invDB.find_one_and_update({"userID": message.author.id}, {"$set":{str(i): (num+b)}})
+                                        invDB.find_one_and_update({"userID": message.author.id}, {"$set":{"items": items+b}})
+                                    currencyDB.find_one_and_update({"userID": message.author.id}, {"$set":{"birbSeed": newBal}})
+                                    name = invDB.find_one({"list": "name"})[str(a)]
+                                    await message.channel.send(f"\"Pleasure doin' buisiness with you, kid!\"\n(You just bought {c} {name.lower()}! You now have {newBal} {currency})")
                     else:
-                        await message.channel.send("\"What can I do for ya, kid?\"\n(`"+prefix+"m buy`,`"+prefix+"m sell`)")
+                        await message.channel.send("\"What'll it be?\"\n(inventory, item)")
+                elif content[1] == 'sell':
+                    if len(content) <= 2:
+                        await message.channel.send("\"What'll it be?\"\n(inventory, item)")
+                    elif content[2] == 'inventory' or content[2] == 'inv':
+                        embed = discord.Embed(title = "__Merchants Request List__", description="Basically, this is what he wants to buy, and how much he'll pay per item", colour = 0x39FF14)
+                        for i in range(1,12):
+                            num = currencyDB.find_one({"userID": "merchant.buy"})[str(i)]
+                            num2 = currencyDB.find_one({"userID": "merchant.sell"})[str(i)]
+                            price = (int(invDB.find_one({"list":"price"})[str(i)])/2)
+                            if num <= 4:
+                                price = price/num2
+                            else: price = price*num2
+                            embed.add_field(name=str(i)+': '+invDB.find_one({"list":"name"})[str(i)], value=str(int(price)))
+                        embed.set_footer(text="Page 1")
+                        await message.channel.send(embed=embed)
+                    elif content[2] == 'item':
+                        if len(content) <= 3:
+                            await message.channel.send("\"I ain't buying air, kid!\"\n(Please provide a valid item number)")
+                        else:
+                            for i in range(1,24):
+                                if content[3] == str(i):
+                                    if invDB.find_one({"userID": message.author.id})[str(i)] == 0:
+                                        await message.channel.send("\"You don't have any of that, kid!\"")
+                                    else:
+                                        if len(content) <= 4:
+                                            num = 1
+                                        elif content[4].isdecimal() == True:
+                                            num = int(content[4])
+                                        else: num = 1
+                                        amount = invDB.find_one({"userID": message.author.id})[str(content[3])]
+                                        if amount < num:
+                                            await message.channel.send("\"You don't have enough of 'em, kid!\"")
+                                        else:
+                                            num2 = currencyDB.find_one({"userID":"merchant.buy"})[str(i)]
+                                            num3 = currencyDB.find_one({"userID": "merchant.sell"})[str(i)]
+                                            price = (int(invDB.find_one({"list": "price"})[str(content[3])])/2)
+                                            if num2 <= 4:
+                                                price = int(price/num3)
+                                            else: price = int(price*num3)
+                                            price = price*num
+                                            invDB.find_one_and_update({"userID": message.author.id},{"$set":{str(content[3]):(amount-num)}})
+                                            prevBal = currencyDB.find_one({"userID": message.author.id})["birbSeed"]
+                                            currencyDB.find_one_and_update({"userID": message.author.id},{"$set":{"birbSeed": (prevBal+price)}})
+                                            name = invDB.find_one({"list": "name"})[str(content[3])]
+                                            await message.channel.send(f"\"Pleasure doin' buisiness with you, kid!\"\n(You just sold {num} {name}! You have earned {price} {currency})")
+                    else:
+                        await message.channel.send("\"What'll it be?\"\n(inventory, item)")
+                else:
+                    await message.channel.send("\"What can I do for ya, kid?\"\n(`"+prefix+"m buy`,`"+prefix+"m sell`)")
             schedDB.insert_one({"userID": message.author.id,"timeLeft": 2, "action":"merchantCD"})
             
         #lockdown command tree
@@ -2830,50 +2757,6 @@ async def on_message(message):
                 else:
                     await message.channel.send("Usage: `"+prefix+"removewarn id {valid warn ID}` (deletes a specific warning) *warnID's found in `"+prefix+"warnings`*\nOR `"+prefix+"removewarn user {ping the user}` (deletes all warnings associated with the pinged user)\n*Fun fact, 'deletewarn' can be used in place of 'removewarn'*")
             
-        #voicemute command tree
-        elif content[0] in [prefix+"vmute", prefix+"voicemute"]:
-            if message.author.guild_permissions.mute_members:
-                if len(message.mentions) == 0:
-                    await message.channel.send("No user was specified\n`"+prefix+"vmute {ping the required user}`")
-                elif message.mentions[0].VoiceState(mute) == True:
-                    await message.channel.send("That user is already voice muted")
-                else:
-                    await message.mentions[0].edit(mute=True)
-                    await message.channel.send("Successfully voice muted that user :thumbsup:")
-                    
-        #voiceunmute command tree
-        elif content[0] in [prefix+"vunmute", prefix+"voiceunmute"]:
-            if message.author.guild_permissions.mute_members:
-                if len(message.mentions) == 0:
-                    await message.channel.send("No user was specified\n`"+prefix+"vunmute {ping the required user}`")
-                elif message.mentions[0].VoiceState(mute) == False:
-                    await message.channel.send("That user is not voice muted")
-                else:
-                    await message.mentions[0].edit(mute=False)
-                    await message.channel.send("Successfully voice unmuted that user :thumbsup:")
-                    
-        #voicedeafen command tree
-        elif content[0] in [prefix+"vdeafen", prefix+"voicedeafen"]:
-            if message.author.guild_permissions.mute_members:
-                if len(message.mentions) == 0:
-                    await message.channel.send("No user was specified\n`"+prefix+"vdeafen {ping the required user}`")
-                elif message.mentions[0].VoiceState(deaf) == True:
-                    await message.channel.send("That user is already voice deafened")
-                else:
-                    await message.mentions[0].edit(deaf=True)
-                    await message.channel.send("Successfully voice deafened that user :thumbsup:")
-                    
-        #voiceundeafen command tree 
-        elif content[0] in [prefix+"vundeafen", prefix+"voiceundeafen"]:
-            if message.author.guild_permissions.mute_members:
-                if len(message.mentions) == 0:
-                    await message.channel.send("No user was specified\n`"+prefix+"vundeafen {ping the required user}`") 
-                elif message.mentions[0].VoiceState(deaf) == False:
-                    await message.channel.send("That user is not voice deafened")
-                else:
-                    await message.mentions[0].edit(deaf=False)
-                    await message.channel.send("Successfully voice undeafened that user :thumbsup:")
-                    
         #slowmode command tree
         elif content[0] == prefix+'slowmode':
             if message.author.guild_permissions.manage_channels:
@@ -2944,42 +2827,12 @@ async def on_message(message):
                     await message.mentions[0].edit(nick=message.content[len(prefix)+len(content[0])+len(content[1])+1:])
                     await message.channel.send("Updated their username :thumbsup:")
                 else: await message.channel.send("You don't have the required permissions for this operation")
-                                    
-        #botinfo command tree
-        elif content[0] == prefix+"botinfo":
-            totalServers = 0
-            totalUsers = 0
-            totalPets = 0
-            totalColours = 0
-            totalWarnings = 0
-            for i in serverDB.find():
-                totalServers += 1
-            for i in currencyDB.find():
-                if i["userID"] in ("merchant.sell", "merchant.buy"):
-                    continue
-                else: totalUsers += 1
-            for i in petDB.find():
-                if i["userID"] == "pet.list":
-                    continue
-                else: totalPets += 1
-            for i in colourDB.find():
-                totalColours += 1
-            for i in warnDB.find():
-                totalWarnings += 1
-            embed = discord.Embed(title="__RoBirb Bot Information__", description="Some random statistics about the bot",colour=0x30D5C8)
-            embed.add_field(name="__No. servers with the bot__", value=f"Currently infesting {len(client.guilds)} servers")
-            embed.add_field(name="__Total servers to ever add the bot__", value=f"Managed to infest {totalServers} servers in total")
-            embed.add_field(name="__Total no. users to ever register with the bot__", value=f"{totalUsers} users have registered")
-            embed.add_field(name="__No. pets owned through the bot__", value=f"{totalPets} pets owned through the bot")
-            embed.add_field(name="__No. colours registered through the bot__", value=f"{totalColours} colours registered through the bot (all servers)")
-            embed.add_field(name="__No. warnings delt through the bot__", value=f"{totalWarnings} warnings delt through the bot (all servers)")
-            await message.channel.send(embed=embed)
             
         #pet command tree
         elif content[0] == prefix+'pet':
-#            if schedDB.find_one({"userID": message.author.id, "action": "petCD"}) != None:
-#                await message.channel.send(f"Please wait before using this command again")
-#                return
+            if schedDB.find_one({"userID": message.author.id, "action": "petCD"}) != None:
+                await message.channel.send(f"Please wait before using this command again")
+                return
             def helpText():
                     embed = discord.Embed(title="__**Pet Help**__", description=" Do `"+prefix+"pet {subcommand (list, for example)}` to do that thing!", colour=0x32CD32)
                     embed.add_field(name="List", value=f"Lists all the pets available to purchace")
@@ -3417,12 +3270,6 @@ async def on_message(message):
             schedDB.insert_one({"userID": message.author.id,"timeLeft": 2, "action":"colourCD"})
             
             
-                            
-        #Below here is the crafting and gathering system.
-        #Here-on-forth is where I lose my shit
-        #---Proceed With Caution---
-        
-        #Sike. Not happening just yet
                 
         elif datetime.datetime.now().month != 11:
             #------------------
@@ -3615,7 +3462,7 @@ async def on_message_delete(message):
     else:
         channel = message.guild.get_channel(serverDB.find_one({"serverID": message.guild.id})["botSpamChannel"])
         embed = discord.Embed(title = f'Message Deleted', description=f"By <@{message.author.id}> in <#{message.channel.id}>", colour = 0xFF0000)
-        embed.set_author(name=message.author,  icon_url=message.author.avatar_url)
+        embed.set_author(name=message.author)
         embed.add_field(name="Deleted Message:", value=message.content)
         embed.set_footer(text=message.guild.name+' - '+str(message.channel))
         await channel.send(embed=embed)
@@ -3634,7 +3481,7 @@ async def on_message_edit(message, message2):
     else:
         channel = message.guild.get_channel(serverDB.find_one({"serverID": message.guild.id})["botSpamChannel"])
         embed = discord.Embed(title = f'Message Edited', url=message.jump_url, description=f"By <@{message.author.id}> in <#{message.channel.id}>", colour = 0xFF0000)
-        embed.set_author(name=message.author,  icon_url=message.author.avatar_url)
+        embed.set_author(name=message.author)
         embed.add_field(name='Before: ', value=message.content, inline=False)
         embed.add_field(name='After: ', value=message2.content, inline=False)
         embed.set_footer(text=message.guild.name+' - '+str(message.channel))
